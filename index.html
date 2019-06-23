@@ -3,22 +3,13 @@
     <head>
         <meta charset="UTF-8" />
         <title>Timer!</title>
+        <script crossorigin src="https://unpkg.com/react@15.3.2/dist/react.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@15.3.2/dist/react-dom.js"></script>
         <link rel="stylesheet" type="text/css" href="styles.css" />
     </head>
     <body>
-        <div class="container">
-            <div class="stopwatch"></div>
-            <nav class="controls">
-                <span class="button" id="start">Start</span>
-                <span class="button" id="stop">Stop</span>
-                <span class="button reset" id="reset">Reset</span>
-            </nav>
-        </div>
-        <div class="container">
-            <div class="header">Split time</div>
-            <ul class="results" id="results"></ul>
-        </div>
+        <div id="stopwatch"></div>
 
-        <script type="text/javascript" src="script-compiled/script.js"></script>
+        <script type="text/javascript" src="script-compiled.js"></script>
     </body>
 </html>

@@ -1,22 +1,15 @@
-class Stopwatch {
-    constructor(display) {
-        this.running = false;
-        this.display = display;
-        this.resetTime();
-    }
-
-    resetTime() {
-        this.times = {
-            minutes: 0,
-            seconds: 0,
-            miliseconds: 0
+class Stopwatch extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            running: false,
+            times: {
+                minutes: 0,
+                seconds: 0,
+                miliseconds: 0
+            },
+            splitTimes: []
         };
-
-        this.print(this.times);
-    }
-
-    print() {
-        this.display.innerText = this.format(this.times);
     }
 
     format(times) {
@@ -31,64 +24,130 @@ class Stopwatch {
         return result;
     }
 
-    reset() {
-        this.resetTime();
-        this.stop();
-        this.clearSplitTimes();
-    }
-
-    start() {
-        if (!this.running) {
-            this.running = true;
+    start = () => {
+        if (!this.state.running) {
+            this.setState({
+                running: true
+            });
             this.watch = setInterval(() => this.step(), 10);
         }
-    }
+    };
 
     step() {
-        if (!this.running) return;
+        if (!this.state.running) return;
         this.calculate();
-        this.print();
     }
 
     calculate() {
-        this.times.miliseconds += 1;
-        if (this.times.miliseconds >= 100) {
-            this.times.seconds += 1;
-            this.times.miliseconds = 0;
+        this.setState({
+            times: {
+                ...this.state.times,
+                miliseconds: (this.state.times.miliseconds += 1)
+            }
+        });
+
+        if (this.state.times.miliseconds >= 100) {
+            this.setState({
+                times: {
+                    ...this.state.times,
+                    seconds: (this.state.times.seconds += 1),
+                    miliseconds: 0
+                }
+            });
         }
-        if (this.times.seconds >= 60) {
-            this.times.minutes += 1;
-            this.times.seconds = 0;
+
+        if (this.state.times.seconds >= 60) {
+            this.setState({
+                times: {
+                    ...this.state.times,
+                    minutes: (this.state.times.minutes += 1),
+                    seconds: 0
+                }
+            });
         }
     }
 
-    stop() {
-        const { miliseconds, seconds, minutes } = this.times;
-        this.running = false;
+    reset = () => {
+        this.setState({
+            times: { minutes: 0, seconds: 0, miliseconds: 0 },
+            splitTimes: []
+        });
+        this.stop();
+    };
+
+    stop = () => {
+        this.setState({
+            running: false
+        });
         clearInterval(this.watch);
-        if (miliseconds || seconds || minutes) this.addSplitTime();
+        if (this.state.times.miliseconds || this.state.times.seconds || this.state.times.minutes)
+            this.addSplitTime(this.format(this.state.times));
+    };
+
+    addSplitTime(times) {
+        this.setState({
+            splitTimes: [...this.state.splitTimes, times]
+        });
     }
 
-    addSplitTime() {
-        const element = document.createElement("li");
-        element.innerText = this.format(this.times);
-        splitTimesList.appendChild(element);
-    }
-
-    clearSplitTimes() {
-        splitTimesList.innerHTML = "";
+    render() {
+        return (
+            <div>
+                <Counter time={this.format(this.state.times)} start={this.start} stop={this.stop} reset={this.reset} />
+                <SplitTimes splitTimes={this.state.splitTimes} />
+            </div>
+        );
     }
 }
 
-const stopwatch = new Stopwatch(document.querySelector(".stopwatch"));
+class SplitTimes extends React.Component {
+    render() {
+        return (
+            <div className="container">
+                <div className="header">Split times</div>
+                <ul className="results">
+                    {this.props.splitTimes.map((splitTime, index) => (
+                        <li key={index}>{splitTime}</li>
+                    ))}
+                </ul>
+            </div>
+        );
+    }
 
-const startButton = document.getElementById("start");
-startButton.addEventListener("click", () => stopwatch.start());
+    static propTypes = {
+        splitTimes: React.PropTypes.array.isRequired
+    };
+}
 
-const stopButton = document.getElementById("stop");
-stopButton.addEventListener("click", () => stopwatch.stop());
+class Counter extends React.Component {
+    render() {
+        const { time, start, stop, reset } = this.props;
 
-const resetButton = document.getElementById("reset");
-resetButton.addEventListener("click", () => stopwatch.reset());
+        return (
+            <div className="container">
+                <div className="time">{time}</div>
+                <nav className="controls">
+                    <span className="button" onClick={start}>
+                        Start
+                    </span>
+                    <span className="button" onClick={stop}>
+                        Stop
+                    </span>
+                    <span className="button reset" onClick={reset}>
+                        Reset
+                    </span>
+                </nav>
+            </div>
+        );
+    }
 
-const splitTimesList = document.getElementById("results");
+    static propTypes = {
+        time: React.PropTypes.string.isRequired,
+        start: React.PropTypes.func.isRequired,
+        stop: React.PropTypes.func.isRequired,
+        reset: React.PropTypes.func.isRequired
+    };
+}
+
+const stopwatchContainer = document.getElementById("stopwatch");
+ReactDOM.render(<Stopwatch />, stopwatchContainer);

@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "build": "babel script.js -d script-compiled --presets=@babel/env",
+        "build": "babel script.js --watch --out-file script-compiled.js --plugins=@babel/proposal-class-properties --presets=@babel/env,@babel/preset-react",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
@@ -12,6 +12,8 @@
     "devDependencies": {
         "@babel/cli": "^7.4.4",
         "@babel/core": "^7.4.5",
-        "@babel/preset-env": "^7.4.5"
+        "@babel/plugin-proposal-class-properties": "^7.4.4",
+        "@babel/preset-env": "^7.4.5",
+        "@babel/preset-react": "^7.0.0"
     }
 }
