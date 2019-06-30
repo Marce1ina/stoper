@@ -62,18 +62,18 @@ function (_React$Component) {
           miliseconds: 0
         },
         splitTimes: []
-      });
-
-      _this.stop();
+      }, _this.stop);
     });
 
     _defineProperty(_assertThisInitialized(_this), "stop", function () {
+      var times = _this.state.times;
+
       _this.setState({
         running: false
       });
 
       clearInterval(_this.watch);
-      if (_this.state.times.miliseconds || _this.state.times.seconds || _this.state.times.minutes) _this.addSplitTime(_this.format(_this.state.times));
+      if (times.miliseconds || times.seconds || times.minutes) _this.addSplitTime(_this.format(times));
     });
 
     _this.state = {
@@ -91,47 +91,46 @@ function (_React$Component) {
   _createClass(Stopwatch, [{
     key: "format",
     value: function format(times) {
-      return "".concat(this.pad0(times.minutes), ":").concat(this.pad0(times.seconds), ":").concat(this.pad0(Math.floor(times.miliseconds)));
+      var pad0 = this.pad0;
+      var miliseconds = times.miliseconds,
+          seconds = times.seconds,
+          minutes = times.minutes;
+      return "".concat(pad0(minutes), ":").concat(pad0(seconds), ":").concat(pad0(Math.floor(miliseconds)));
     }
   }, {
     key: "pad0",
     value: function pad0(value) {
       var result = value.toString();
-
-      if (result.length < 2) {
-        result = "0" + result;
-      }
-
-      return result;
+      return result.length < 2 ? "0" + result : result;
     }
   }, {
     key: "step",
     value: function step() {
-      if (!this.state.running) return;
-      this.calculate();
+      if (this.state.running) this.calculate();
     }
   }, {
     key: "calculate",
     value: function calculate() {
+      var times = this.state.times;
       this.setState({
-        times: _objectSpread({}, this.state.times, {
-          miliseconds: this.state.times.miliseconds += 1
+        times: _objectSpread({}, times, {
+          miliseconds: times.miliseconds += 1
         })
       });
 
-      if (this.state.times.miliseconds >= 100) {
+      if (times.miliseconds >= 100) {
         this.setState({
-          times: _objectSpread({}, this.state.times, {
-            seconds: this.state.times.seconds += 1,
+          times: _objectSpread({}, times, {
+            seconds: times.seconds += 1,
             miliseconds: 0
           })
         });
       }
 
-      if (this.state.times.seconds >= 60) {
+      if (times.seconds >= 60) {
         this.setState({
-          times: _objectSpread({}, this.state.times, {
-            minutes: this.state.times.minutes += 1,
+          times: _objectSpread({}, times, {
+            minutes: times.minutes += 1,
             seconds: 0
           })
         });
@@ -147,13 +146,16 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
+      var _this$state = this.state,
+          times = _this$state.times,
+          splitTimes = _this$state.splitTimes;
       return React.createElement("div", null, React.createElement(Counter, {
-        time: this.format(this.state.times),
+        time: this.format(times),
         start: this.start,
         stop: this.stop,
         reset: this.reset
       }), React.createElement(SplitTimes, {
-        splitTimes: this.state.splitTimes
+        splitTimes: splitTimes
       }));
     }
   }]);

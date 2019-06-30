@@ -13,15 +13,15 @@ class Stopwatch extends React.Component {
     }
 
     format(times) {
-        return `${this.pad0(times.minutes)}:${this.pad0(times.seconds)}:${this.pad0(Math.floor(times.miliseconds))}`;
+        const pad0 = this.pad0;
+        const { miliseconds, seconds, minutes } = times;
+
+        return `${pad0(minutes)}:${pad0(seconds)}:${pad0(Math.floor(miliseconds))}`;
     }
 
     pad0(value) {
         let result = value.toString();
-        if (result.length < 2) {
-            result = "0" + result;
-        }
-        return result;
+        return result.length < 2 ? "0" + result : result;
     }
 
     start = () => {
@@ -34,33 +34,34 @@ class Stopwatch extends React.Component {
     };
 
     step() {
-        if (!this.state.running) return;
-        this.calculate();
+        if (this.state.running) this.calculate();
     }
 
     calculate() {
+        const { times } = this.state;
+
         this.setState({
             times: {
-                ...this.state.times,
-                miliseconds: (this.state.times.miliseconds += 1)
+                ...times,
+                miliseconds: (times.miliseconds += 1)
             }
         });
 
-        if (this.state.times.miliseconds >= 100) {
+        if (times.miliseconds >= 100) {
             this.setState({
                 times: {
-                    ...this.state.times,
-                    seconds: (this.state.times.seconds += 1),
+                    ...times,
+                    seconds: (times.seconds += 1),
                     miliseconds: 0
                 }
             });
         }
 
-        if (this.state.times.seconds >= 60) {
+        if (times.seconds >= 60) {
             this.setState({
                 times: {
-                    ...this.state.times,
-                    minutes: (this.state.times.minutes += 1),
+                    ...times,
+                    minutes: (times.minutes += 1),
                     seconds: 0
                 }
             });
@@ -68,20 +69,24 @@ class Stopwatch extends React.Component {
     }
 
     reset = () => {
-        this.setState({
-            times: { minutes: 0, seconds: 0, miliseconds: 0 },
-            splitTimes: []
-        });
-        this.stop();
+        this.setState(
+            {
+                times: { minutes: 0, seconds: 0, miliseconds: 0 },
+                splitTimes: []
+            },
+            this.stop
+        );
     };
 
     stop = () => {
+        const { times } = this.state;
+
         this.setState({
             running: false
         });
+
         clearInterval(this.watch);
-        if (this.state.times.miliseconds || this.state.times.seconds || this.state.times.minutes)
-            this.addSplitTime(this.format(this.state.times));
+        if (times.miliseconds || times.seconds || times.minutes) this.addSplitTime(this.format(times));
     };
 
     addSplitTime(times) {
@@ -91,10 +96,12 @@ class Stopwatch extends React.Component {
     }
 
     render() {
+        const { times, splitTimes } = this.state;
+
         return (
             <div>
-                <Counter time={this.format(this.state.times)} start={this.start} stop={this.stop} reset={this.reset} />
-                <SplitTimes splitTimes={this.state.splitTimes} />
+                <Counter time={this.format(times)} start={this.start} stop={this.stop} reset={this.reset} />
+                <SplitTimes splitTimes={splitTimes} />
             </div>
         );
     }
